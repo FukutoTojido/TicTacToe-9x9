@@ -1,0 +1,73 @@
+:root {
+    font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+    line-height: 1.5;
+    font-weight: 400;
+
+    color-scheme: light dark;
+    color: rgba(255, 255, 255, 0.87);
+    background-color: #363636;
+
+    font-synthesis: none;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+    margin: 0;
+    display: flex;
+    place-items: center;
+    min-width: 320px;
+    min-height: 100vh;
+}
+
+#app {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 2rem;
+    text-align: center;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.container {
+    width: 800px;
+    height: 800px;
+
+	display: grid;
+	grid-template-columns: repeat(9, 1fr);
+	grid-template-rows: repeat(9, 1fr);
+
+	gap: 5px;
+	
+}
+
+.square {
+	background-color: #161616;
+	cursor: pointer;
+	background-size: 80%;
+	background-position: center;
+	background-repeat: no-repeat;
+}
+
+.square:hover {
+	background-color: #202020;
+}
+
+.square.o {
+	background-image: url(/circle.svg);
+}
+
+.square.x {
+	background-image: url(/x.svg);
+}
+
+.square.o, .square.x {
+	cursor: default;
+}
+
+.square.o:hover, .square.x:hover {
+	background-color: #161616;
+}
