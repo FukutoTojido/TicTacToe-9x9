@@ -7,8 +7,8 @@ enum SquareState {
 }
 
 enum Turn {
-    O,
-    X,
+    O = "O",
+    X = "X",
 }
 
 class Square {
@@ -68,7 +68,7 @@ class Square {
 class Game {
     static _turn = Turn.O;
     static grid: Square[][] = [];
-    static ended = false;
+    static _ended = false;
 
     static construct() {
         const container = document.querySelector(".container");
@@ -84,6 +84,15 @@ class Game {
             this.grid.push(column);
         }
     }
+
+	static get ended() {
+		return this._ended;
+	}
+
+	static set ended(value: boolean) {
+		this._ended = value;
+		alert(`${this.turn} won!`)
+	}
 
     static getSerializedHorizontal() {
         const arr = [];
