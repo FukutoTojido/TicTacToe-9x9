@@ -1,9 +1,9 @@
 import "./style.css";
 
 enum SquareState {
-    UNMARKED,
-    O,
-    X,
+    UNMARKED = "_",
+    O = "O",
+    X = "X",
 }
 
 enum Turn {
@@ -85,6 +85,83 @@ class Game {
         }
     }
 
+    static getSerializedHorizontal() {
+        const arr = [];
+        for (const row of this.grid) {
+			const horz = [];
+            for (const col of row) {
+                horz.push(col.state);
+            }
+			arr.push(horz.join(""));
+        }
+
+        return arr;
+    }
+
+    static getSerializedVertical() {
+        const arr = [];
+        for (let i = 0; i < 9; i++) {
+			const vert = [];
+            for (let j = 0; j < 9; j++) {
+                vert.push(this.grid[j][i].state);
+            }
+			arr.push(vert.join(""));
+        }
+
+        return arr;
+    }
+
+    static getSerializedDiagonal() {
+        const arr = [];
+
+        for (let i = 4; i < 9; i++) {
+            const diag = [];
+            for (let j = 0; j <= i; j++) {
+                const { state } = this.grid[i - j][j];
+                diag.push(state);
+            }
+
+            arr.push(diag.join(""));
+        }
+
+        for (let i = 7; i >= 4; i--) {
+            const diag = [];
+            for (let j = 0; j <= i; j++) {
+                const { state } = this.grid[8 - i + j][8 - j];
+                diag.push(state);
+            }
+
+            arr.push(diag.join(""));
+        }
+
+        return arr;
+    }
+
+    static getSerializedDiagonal_2() {
+        const arr = [];
+        for (let i = 4; i < 9; i++) {
+            const diag = [];
+            for (let j = 0; j <= i; j++) {
+                const { state } = this.grid[j][8 - i + j];
+                diag.push(state);
+            }
+
+            arr.push(diag.join(""));
+        }
+
+        for (let i = 1; i < 5; i++) {
+            const diag = [];
+            for (let j = 0; j <= 8 - i; j++) {
+                const { state } = this.grid[i + j][j];
+                diag.push(state);
+            }
+
+            arr.push(diag.join(""));
+        }
+
+        return arr;
+    }
+
     static get turn(): Turn {
         return this._turn;
     }
@@ -95,126 +172,143 @@ class Game {
     }
 
     static checkWin(x: number, y: number) {
-		if (this.checkHorizontally(x, y)) {
-			this.ended = true;
-			return;
-		}
+		const horz = this.getSerializedHorizontal();
+		const vert = this.getSerializedVertical();
+		const diag = this.getSerializedDiagonal();
+		const diag_2 = this.getSerializedDiagonal_2();
 
-		if (this.checkVertically(x, y)) {
-			this.ended = true;
-			return;
-		}
+		console.log(horz, vert, diag, diag_2);
 
-		if (this.checkDiagonally(x, y)) {
-			this.ended = true;
-			return;
-		}
+        if (this.checkHorizontally(x, y)) {
+            this.ended = true;
+            return;
+        }
 
-		if (this.checkDiagonally_2(x, y)) {
-			this.ended = true;
-			return;
-		}
-	}
+        if (this.checkVertically(x, y)) {
+            this.ended = true;
+            return;
+        }
 
-	static checkHorizontally(x: number, y: number): boolean {
-		const state = this.grid[x][y].state;
-		let counter = 0;
+        if (this.checkDiagonally(x, y)) {
+            this.ended = true;
+            return;
+        }
 
-		let back_x = x;
-		while (back_x >= 0 && this.grid[back_x][y].state === state) {
-			counter++;
-			if (counter >= 5) return true;
+        if (this.checkDiagonally_2(x, y)) {
+            this.ended = true;
+            return;
+        }
+    }
 
-			back_x--;
-		}
+    static checkHorizontally(x: number, y: number): boolean {
+        const state = this.grid[x][y].state;
+        let counter = 0;
 
-		let front_x = x + 1;
-		while (front_x < 9 && this.grid[front_x][y].state === state) {
-			counter++;
-			if (counter >= 5) return true;
+        let back_x = x;
+        while (back_x >= 0 && this.grid[back_x][y].state === state) {
+            counter++;
+            if (counter >= 5) return true;
 
-			front_x++;
-		}
+            back_x--;
+        }
 
-		return false;
-	}
+        let front_x = x + 1;
+        while (front_x < 9 && this.grid[front_x][y].state === state) {
+            counter++;
+            if (counter >= 5) return true;
 
-	static checkVertically(x: number, y: number): boolean {
-		const state = this.grid[x][y].state;
-		let counter = 0;
+            front_x++;
+        }
 
-		let back_y = y;
-		while (back_y >= 0 && this.grid[x][back_y].state === state) {
-			counter++;
-			if (counter >= 5) return true;
+        return false;
+    }
 
-			back_y--;
-		}
+    static checkVertically(x: number, y: number): boolean {
+        const state = this.grid[x][y].state;
+        let counter = 0;
 
-		let front_y = y + 1;
-		while (front_y < 9 && this.grid[x][front_y].state === state) {
-			counter++;
-			if (counter >= 5) return true;
+        let back_y = y;
+        while (back_y >= 0 && this.grid[x][back_y].state === state) {
+            counter++;
+            if (counter >= 5) return true;
 
-			front_y++;
-		}
+            back_y--;
+        }
 
-		return false;
-	}
+        let front_y = y + 1;
+        while (front_y < 9 && this.grid[x][front_y].state === state) {
+            counter++;
+            if (counter >= 5) return true;
 
-	static checkDiagonally(x: number, y: number): boolean {
-		const state = this.grid[x][y].state;
-		let counter = 0;
+            front_y++;
+        }
 
-		let back_x = x;
-		let back_y = y;
-		while (back_y >= 0 && back_x >= 0 && this.grid[back_x][back_y].state === state) {
-			counter++;
-			if (counter >= 5) return true;
+        return false;
+    }
 
-			back_x--;
-			back_y--;
-		}
+    static checkDiagonally(x: number, y: number): boolean {
+        const state = this.grid[x][y].state;
+        let counter = 0;
 
-		let front_x = x + 1;
-		let front_y = y + 1;
-		while (front_y < 9 && front_x < 9 && this.grid[front_x][front_y].state === state) {
-			counter++;
-			if (counter >= 5) return true;
+        let back_x = x;
+        let back_y = y;
+        while (back_y >= 0 && back_x >= 0 && this.grid[back_x][back_y].state === state) {
+            counter++;
+            if (counter >= 5) return true;
 
-			front_x++;
-			front_y++;
-		}
+            back_x--;
+            back_y--;
+        }
 
-		return false;
-	}
+        let front_x = x + 1;
+        let front_y = y + 1;
+        while (front_y < 9 && front_x < 9 && this.grid[front_x][front_y].state === state) {
+            counter++;
+            if (counter >= 5) return true;
 
-	static checkDiagonally_2(x: number, y: number): boolean {
-		const state = this.grid[x][y].state;
-		let counter = 0;
+            front_x++;
+            front_y++;
+        }
 
-		let back_x = x;
-		let back_y = y;
-		while (back_y >= 0 && back_x >= 0 && this.grid[back_x][back_y].state === state) {
-			counter++;
-			if (counter >= 5) return true;
+        return false;
+    }
 
-			back_x++;
-			back_y--;
-		}
+    static checkDiagonally_2(x: number, y: number): boolean {
+        const state = this.grid[x][y].state;
+        let counter = 0;
 
-		let front_x = x - 1;
-		let front_y = y + 1;
-		while (front_y < 9 && front_x < 9 && this.grid[front_x][front_y].state === state) {
-			counter++;
-			if (counter >= 5) return true;
+        let back_x = x;
+        let back_y = y;
+        while (back_y >= 0 && back_x < 9 && this.grid[back_x][back_y].state === state) {
+            counter++;
+            if (counter >= 5) return true;
 
-			front_x--;
-			front_y++;
-		}
+            back_x++;
+            back_y--;
+        }
 
-		return false;
-	}
+        let front_x = x - 1;
+        let front_y = y + 1;
+        while (front_y < 9 && front_x >= 0 && this.grid[front_x][front_y].state === state) {
+            counter++;
+            if (counter >= 5) return true;
+
+            front_x--;
+            front_y++;
+        }
+
+        return false;
+    }
+}
+
+class Agent {
+    side: Turn;
+
+    constructor(side: Turn) {
+        this.side = side;
+    }
+
+    move() {}
 }
 
 Game.construct();
