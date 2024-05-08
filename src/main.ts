@@ -91,7 +91,7 @@ class Game {
 
 	static set ended(value: boolean) {
 		this._ended = value;
-		alert(`${this.turn} won!`)
+		alert(`${this.turn === Turn.O ? Turn.X : Turn.O} won!`)
 	}
 
     static getSerializedHorizontal() {
