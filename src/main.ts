@@ -83,7 +83,7 @@ export class Game {
     static bot1: Agent | VeryStupidAgent;
     static bot2: VeryStupidAgent | Agent;
 
-    static construct() {
+    static construct(mode: Mode) {
         const container = document.querySelector(".container");
         for (let i = 0; i < 9; i++) {
             const column: Square[] = [];
@@ -95,8 +95,20 @@ export class Game {
             this.grid.push(column);
         }
 
-        this.bot1 = new Agent(Turn.X);
-        this.bot2 = new VeryStupidAgent(Turn.O);
+        if (mode === Mode.Agent_Agent) {
+            this.bot1 = new Agent(Turn.X);
+            this.bot2 = new Agent(Turn.O);
+        }
+
+        if (mode === Mode.Agent_StupidAgent) {
+            this.bot1 = new Agent(Turn.X);
+            this.bot2 = new VeryStupidAgent(Turn.O);
+        }
+    }
+
+    static startPlaying(side: Turn) {
+        if (side === Turn.X) this.bot1.move();
+        if (side === Turn.O) this.bot2.move();
     }
 
     static getCopy() {
@@ -153,13 +165,15 @@ class Agent {
 
         this.worker.onmessage = (event) => {
             const coords = event.data.move;
+
             if (!coords) {
                 throw new Error("WHAT THE HELL??");
             }
-            Game.grid[coords[0]][coords[1]].changeState(SquareState.X);
-            Game.grid[coords[0]][coords[1]].element.classList.add("x");
+
+            Game.grid[coords[0]][coords[1]].changeState(this.side === Turn.O ? SquareState.O : SquareState.X);
+            Game.grid[coords[0]][coords[1]].element.classList.add(this.side === Turn.O ? "o" : "x");
             Game.turn = {
-                turn: Turn.O,
+                turn: this.side === Turn.O ? Turn.X : Turn.O,
                 position: {
                     x: coords[0],
                     y: coords[1],
@@ -198,5 +212,11 @@ class VeryStupidAgent {
     }
 }
 
-Game.construct();
-Game.bot2.move();
+enum Mode {
+    Agent_Agent,
+    Agent_StupidAgent,
+}
+
+Game.construct(Mode.Agent_Agent);
+Game.startPlaying(Turn.X);
+// Game.bot2.move();

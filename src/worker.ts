@@ -12,11 +12,19 @@ onmessage = (event) => {
     const move = bestMove(side, grid);
 
     postMessage({
-        move
-    })
-}
+        move,
+    });
+};
 
 function bestMove(side: SquareState, grid: Square[][]) {
+    const serial = getSerializedHorizontal(grid)
+        .map((row) => row.join(""))
+        .join("");
+        
+    if (serial.length === (serial.match(/\.+/g)?.[0] ?? "").length) {
+        return [4, 4];
+    }
+
     let bestScore = -Infinity;
     let retCoord: number[] | null = null;
 
@@ -26,12 +34,11 @@ function bestMove(side: SquareState, grid: Square[][]) {
     for (const coord of toBeChecked) {
         const [i, j] = coord;
 
-
-        grid[i][j].state = (side);
+        grid[i][j].state = side;
         const score = alphaBeta(side, grid, i, j, 0, -Infinity, Infinity, false);
         // console.log(coord, score);
 
-        grid[i][j].state = (SquareState.UNMARKED);
+        grid[i][j].state = SquareState.UNMARKED;
 
         if (score > bestScore) {
             bestScore = score;
@@ -53,13 +60,13 @@ function getSquare(grid: Square[][]): number[][] {
 
             adjacent.push([i, j]);
 
-            grid[i][j].state = (SquareState.O);
+            grid[i][j].state = SquareState.O;
             if (checkWinner(grid, i, j)) forcedWins.push([i, j]);
 
-            grid[i][j].state = (SquareState.X);
+            grid[i][j].state = SquareState.X;
             if (checkWinner(grid, i, j)) forcedWins.push([i, j]);
 
-            grid[i][j].state = (SquareState.UNMARKED);
+            grid[i][j].state = SquareState.UNMARKED;
         }
     }
 
@@ -134,7 +141,7 @@ function alphaBeta(side: SquareState, grid: Square[][], i: number, j: number, de
 
     for (const coords of toBeChecked) {
         let [i, j] = coords;
-        grid[i][j].state = (isAiTurn ? side : oppSide);
+        grid[i][j].state = isAiTurn ? side : oppSide;
 
         const temp = {
             grid,
@@ -171,7 +178,7 @@ function alphaBeta(side: SquareState, grid: Square[][], i: number, j: number, de
             beta = Math.min(beta, bestScore);
         }
 
-        grid[i][j].state = (SquareState.UNMARKED);
+        grid[i][j].state = SquareState.UNMARKED;
 
         if (alpha >= beta) break;
     }
