@@ -20,9 +20,9 @@ function bestMove(side: SquareState, grid: Square[][]) {
     const serial = getSerializedHorizontal(grid)
         .map((row) => row.join(""))
         .join("");
-        
+
     if (serial.length === (serial.match(/\.+/g)?.[0] ?? "").length) {
-        return [4, 4];
+        return [Math.floor(Math.random() * 9), Math.floor(Math.random() * 9)];
     }
 
     let bestScore = -Infinity;
