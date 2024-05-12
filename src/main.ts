@@ -39,33 +39,33 @@ export class Square {
         this.y = column;
 
         square.addEventListener("click", () => {
-            if (this.state !== SquareState.UNMARKED || Game.ended) return;
+            if (this.state !== SquareState.UNMARKED || Game.ended || Game.mode !== Mode.Agent_Man) return;
 
-            // if (Game.turn === Turn.O) {
-            //     this.changeState(SquareState.O);
-            //     this.element.classList.add("o");
-            //     Game.turn = {
-            //         turn: Turn.X,
-            //         position: {
-            //             x: this.x,
-            //             y: this.y,
-            //         },
-            //     };
-            //     return;
-            // }
+            if (Game.turn === Turn.O) {
+                this.changeState(SquareState.O);
+                this.element.classList.add("o");
+                Game.turn = {
+                    turn: Turn.X,
+                    position: {
+                        x: this.x,
+                        y: this.y,
+                    },
+                };
+                return;
+            }
 
-            // if (Game.turn === Turn.X) {
-            //     this.changeState(SquareState.X);
-            //     this.element.classList.add("x");
-            //     Game.turn = {
-            //         turn: Turn.O,
-            //         position: {
-            //             x: this.x,
-            //             y: this.y,
-            //         },
-            //     };
-            //     return;
-            // }
+            if (Game.turn === Turn.X) {
+                this.changeState(SquareState.X);
+                this.element.classList.add("x");
+                Game.turn = {
+                    turn: Turn.O,
+                    position: {
+                        x: this.x,
+                        y: this.y,
+                    },
+                };
+                return;
+            }
         });
 
         this.element = square;
@@ -82,9 +82,15 @@ export class Game {
     static _ended = false;
     static bot1: Agent | VeryStupidAgent;
     static bot2: VeryStupidAgent | Agent;
+    static mode: Mode;
 
     static construct(mode: Mode) {
+        this.grid = [];
+        this.ended = false;
+
         const container = document.querySelector(".container");
+        container!.innerHTML = "";
+
         for (let i = 0; i < 9; i++) {
             const column: Square[] = [];
             for (let j = 0; j < 9; j++) {
@@ -104,6 +110,13 @@ export class Game {
             this.bot1 = new Agent(Turn.X);
             this.bot2 = new VeryStupidAgent(Turn.O);
         }
+
+        if (mode === Mode.Agent_Man) {
+            this.bot1 = new Agent(Turn.X);
+            this._turn = Turn.O;
+        }
+
+        this.mode = mode;
     }
 
     static startPlaying(side: Turn) {
@@ -127,7 +140,11 @@ export class Game {
 
     static set ended(value: boolean) {
         this._ended = value;
-        alert(`${this.turn === Turn.O ? Turn.X : Turn.O} won!`);
+
+        if (value === false) return;
+
+        document.getElementById("thinking")!.innerText = `${this.turn === Turn.O ? Turn.X : Turn.O} won!`;
+        (document.querySelector(".buttonContainer")! as HTMLElement).style.display = "block";
     }
 
     static get turn(): Turn {
@@ -142,7 +159,7 @@ export class Game {
             this.bot1.move();
         }
 
-        if (value.turn === this.bot2.side && !this.ended) {
+        if (Game.mode !== Mode.Agent_Man && value.turn === this.bot2.side && !this.ended) {
             this.bot2.move();
         }
     }
@@ -158,6 +175,7 @@ class Agent {
     }
 
     move() {
+        document.getElementById("thinking")!.innerText = `${this.side} is thinking`;
         this.worker.postMessage({
             grid: Game.getCopy(),
             side: this.side,
@@ -179,6 +197,10 @@ class Agent {
                     y: coords[1],
                 },
             };
+
+            if (Game.mode === Mode.Agent_Man) {
+                (document.querySelector("#thinking")! as HTMLElement).innerText = `YOUR TURN!`;
+            }
         };
     }
 }
@@ -215,8 +237,28 @@ class VeryStupidAgent {
 enum Mode {
     Agent_Agent,
     Agent_StupidAgent,
+    Agent_Man,
 }
 
-Game.construct(Mode.Agent_Agent);
-Game.startPlaying(Turn.X);
+// Game.startPlaying(Turn.X);
 // Game.bot2.move();
+
+document.querySelector("#startButton")?.addEventListener("click", () => {
+    Game.construct(Mode.Agent_Agent);
+
+    (document.querySelector(".buttonContainer")! as HTMLElement).style.display = "none";
+    Game.startPlaying(Turn.X);
+});
+
+document.querySelector("#startButton_1")?.addEventListener("click", () => {
+    Game.construct(Mode.Agent_Man);
+
+    (document.querySelector(".buttonContainer")! as HTMLElement).style.display = "none";
+});
+
+document.querySelector("#startButton_2")?.addEventListener("click", () => {
+    Game.construct(Mode.Agent_StupidAgent);
+
+    (document.querySelector(".buttonContainer")! as HTMLElement).style.display = "none";
+    Game.startPlaying(Turn.X);
+});

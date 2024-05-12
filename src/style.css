@@ -46,6 +46,11 @@ body {
 	
 }
 
+.buttonContainer {
+    display: flex;
+    gap: 5px;
+}
+
 .square {
 	background-color: #161616;
 	cursor: pointer;

@@ -4,7 +4,7 @@ import { getSerializedDiagonal, getSerializedDiagonal_2, getSerializedHorizontal
 
 const winnerMap = new Map();
 const cacheMap = new Map();
-const MAX_DEPTH = 3;
+const MAX_DEPTH = 5;
 
 onmessage = (event) => {
     console.log(event.data);
